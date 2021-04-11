@@ -65,17 +65,6 @@ class Agent(metaclass=abc.ABCMeta):
 
         return ideal
 
-    def get_observations(self):
-        """
-        Returns:
-        ----------
-        list of tuple(landmark (x, y), np.array(distance, angle))
-            list of observed landmark (tuple of (landmark pos, observed distance and angle))
-        """
-
-        self.observed_list = [(landmark, self._observe(landmark, self.actual_list[-1])) for landmark in self.landmarks]
-        return self.observed_list
-
     def get_input(self, current, destination, delta):
         """
         Parameters:
@@ -97,6 +86,17 @@ class Agent(metaclass=abc.ABCMeta):
         omega = (destination[2] - theta) / delta
 
         return np.linalg.pinv(Robot.T(theta, omega, delta)).dot((destination - current))
+
+    def get_observations(self):
+        """
+        Returns:
+        ----------
+        list of tuple(landmark (x, y), np.array(distance, angle))
+            list of observed landmark (tuple of (landmark pos, observed distance and angle))
+        """
+
+        self.observed_list = [(landmark, self._observe(landmark, self.actual_list[-1])) for landmark in self.landmarks]
+        return self.observed_list
 
     def _observe(self, landmark, actual):
         """

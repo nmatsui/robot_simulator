@@ -10,39 +10,23 @@ class EKF:
     q = 0.01
     r = 0.04
 
-    def __init__(self, agent):
+    def __init__(self, agent, initial):
         """
         Parameters:
         ----------
         agent: src.agent.Agent
             agent of robot
-
-        Notes:
-        ----------
-        initialize xhat_list, P_list, K_list
-        """
-
-        self.ideal_list = np.array([()]).reshape(0, 3)
-        self.xhat_list = np.array([()]).reshape(0, 3)
-        self.P_list = np.array([()]).reshape(0, 3, 3)
-        self.K_list = np.array([()]).reshape(0, 3, 2)
-        self.agent = agent
-
-    def set_initial_values(self, initial):
-        """
-        Parameters:
-        ----------
         initial: np.array(x, y, theta)
             initial pose
 
         Notes:
         ----------
-        prepare xhat_list, P_list, K_list, Q, R
+        initialize xhat, P, Q, R and start_time
         """
 
-        self.xhat_list = np.append(self.xhat_list, np.array([initial]), axis=0)
-        self.P_list = np.append(self.P_list, np.array([np.zeros((3, 3))]), axis=0)
-        self.K_list = np.append(self.K_list, np.array([np.zeros((3, 2))]), axis=0)
+        self.agent = agent
+        self.xhat = np.array(initial)
+        self.P = np.zeros((3, 3))
         self.Q = np.dot(EKF.q, np.identity(3))
         self.R = np.dot(EKF.r, np.identity(2))
         self.start_t = time.time()
@@ -60,12 +44,12 @@ class EKF:
         Returns:
         ----------
         tuple(np.array(x, y, theta), np.array().size(3, 3))
-            predicted pose and predicted covariance
+            predicted pose and covariance
         """
 
-        a_priori_x = Robot.move(self.xhat_list[-1], input, delta)
-        F = Robot.F(self.xhat_list[-1], input, delta)
-        a_priori_P = F.dot(self.P_list[-1]).dot(F.T) + self.Q
+        a_priori_x = Robot.move(self.xhat, input, delta)
+        F = Robot.F(self.xhat, input, delta)
+        a_priori_P = F.dot(self.P).dot(F.T) + self.Q
         return a_priori_x, a_priori_P
 
     def update(self, a_priori_x, a_priori_P, landmark, observed):
@@ -74,7 +58,7 @@ class EKF:
         ----------
         a_priori_x: np.array(x, y, theta)
             predicted pose
-        a_priori_p: np.array().size(3, 3)
+        a_priori_P: np.array().size(3, 3)
             predicted covariance
         landmark: tuple(x, y)
             coordinate of observed landmark
@@ -84,7 +68,7 @@ class EKF:
         Returns:
         ----------
         tuple(np.array(x, y, theta), np.array().size(3, 3), np.array().size(3, 2))
-            updated pose ,covariance and kalman gain
+            updated pose, covariance and kalman gain
         """
 
         yhat = observed - Camera.observe(landmark, a_priori_x)
@@ -97,27 +81,26 @@ class EKF:
 
     def step(self):
         """
-        Parameters:
+        Returns:
         ----------
-        t: float
-            current unixtime
+        tuple(np.array(x, y, theta), np.array(x, y, theta), np.array().size(3, 3), np.array().size(3, 2))
+            ideal pose, estimated pose, covariance and kalman gain
 
         Notes:
         ----------
-        calculate pose, covariance and kalman gain of this tick
+        estimate estimated pose of this time tick by using kalman filter
         """
 
         t = time.time()
         delta = t - self.t
         ideal = self.agent.next_tick(t - self.start_t)
-        input = self.agent.get_input(self.xhat_list[-1], ideal, delta)
+        input = self.agent.get_input(self.xhat, ideal, delta)
         xhat, P = self.predict(input, delta)
         K = None
         for landmark, observed in self.agent.get_observations():
             xhat, P, K = self.update(xhat, P, landmark, observed)
 
-        self.ideal_list = np.append(self.ideal_list, np.array([ideal]), axis=0)
-        self.xhat_list = np.append(self.xhat_list, np.array([xhat]), axis=0)
-        self.P_list = np.append(self.P_list, np.array([P]), axis=0)
-        self.K_list = np.append(self.K_list, np.array([K]), axis=0)
+        self.xhat = xhat
+        self.P = P
         self.t = t
+        return ideal, xhat, P, K
