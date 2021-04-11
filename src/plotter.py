@@ -1,5 +1,3 @@
-import time
-
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -28,7 +26,7 @@ def plot(ekf):
     ax = fig.add_subplot(111)
 
     def update(frame):
-        ekf.step(time.time())
+        ekf.step()
         ax.cla()
         ax.set_xlim([-1.2, 1.2])
         ax.set_ylim([-1.2, 1.2])
@@ -40,7 +38,7 @@ def plot(ekf):
             ys = [ekf.agent.actual_list[-1][1],
                   ekf.agent.actual_list[-1][1] + observed[1][0] * np.sin(observed[1][1] + ekf.agent.actual_list[-1][2])]
             ax.plot(xs, ys, color='green')
-        ax.plot(ekf.agent.ideal_list[:, 0], ekf.agent.ideal_list[:, 1], color='black')
+        ax.plot(ekf.ideal_list[:, 0], ekf.ideal_list[:, 1], color='black')
         ax.plot(ekf.agent.actual_list[:, 0], ekf.agent.actual_list[:, 1], color='blue')
         ax.plot(ekf.xhat_list[:, 0], ekf.xhat_list[:, 1], color='red')
         c = patches.Circle(xy=tuple(ekf.xhat_list[-1][:2]), radius=0.05, fc='none', ec='red')

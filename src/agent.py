@@ -1,5 +1,4 @@
 import abc
-import time
 
 import numpy as np
 
@@ -19,11 +18,9 @@ class Agent(metaclass=abc.ABCMeta):
             list of the landmark coordination
         """
 
-        self.ideal_list = np.array([()]).reshape(0, 3)
         self.actual_list = np.array([()]).reshape(0, 3)
         self.observed_list = []
         self.landmarks = landmarks
-        self.start_t = time.time()
 
     @abc.abstractmethod
     def cmd(self, t):
@@ -31,11 +28,12 @@ class Agent(metaclass=abc.ABCMeta):
         Parameters:
         ----------
         t: float
-            current unixtime
+            elapsed time
 
         Returns:
         ----------
-        ideal pose of t
+        np.array(x, y, theta)
+            ideal pose of t
 
         Notes:
         ----------
@@ -49,17 +47,23 @@ class Agent(metaclass=abc.ABCMeta):
         Parameters:
         ----------
         t: float
-            current unixtime
+            elapsed time
+
+        Returns:
+        ----------
+        np.array(x, y, theta)
+            ideal pose of t
 
         Notes:
         ----------
         when called 'next_tick', the ideal and actual pose is calculated
         """
         ideal = self.cmd(t)
-        self.ideal_list = np.append(self.ideal_list, np.array([ideal]), axis=0)
 
         actual = np.random.normal(ideal, Agent.actual_sd, 3)
         self.actual_list = np.append(self.actual_list, np.array([actual]), axis=0)
+
+        return ideal
 
     def get_observations(self):
         """
@@ -72,12 +76,14 @@ class Agent(metaclass=abc.ABCMeta):
         self.observed_list = [(landmark, self._observe(landmark, self.actual_list[-1])) for landmark in self.landmarks]
         return self.observed_list
 
-    def get_input(self, current, delta):
+    def get_input(self, current, destination, delta):
         """
         Parameters:
         ----------
         current: np.array(x, y, theta)
             current pose
+        destination: np.array(x, y, theta)
+            destination pose
         delta: float
             time delta of this tick
 
@@ -88,9 +94,9 @@ class Agent(metaclass=abc.ABCMeta):
         """
 
         theta = current[2]
-        omega = (self.actual_list[-1][2] - theta) / delta
+        omega = (destination[2] - theta) / delta
 
-        return np.linalg.pinv(Robot.T(theta, omega, delta)).dot((self.actual_list[-1] - current))
+        return np.linalg.pinv(Robot.T(theta, omega, delta)).dot((destination - current))
 
     def _observe(self, landmark, actual):
         """

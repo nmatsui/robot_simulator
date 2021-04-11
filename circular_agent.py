@@ -18,16 +18,17 @@ class CircularAgent(Agent):
         Parameters:
         ----------
         t: float
-            current unixtime
+            elapsed time
 
         Returns:
         ----------
-        ideal pose of t
+        np.array(x, y, theta)
+            ideal pose of t
         """
 
-        ideal = np.array((0, 0, np.pi/2.0)) + np.array((np.cos(INPUT_OMEGA * (t - self.start_t)),
-                                                        np.sin(INPUT_OMEGA * (t - self.start_t)),
-                                                        INPUT_OMEGA * (t - self.start_t)))
+        ideal = np.array((0, 0, np.pi/2.0)) + np.array((np.cos(INPUT_OMEGA * t),
+                                                        np.sin(INPUT_OMEGA * t),
+                                                        INPUT_OMEGA * t))
         # ideal[2] = np.mod(ideal[2], 2.0 * np.pi)
         return ideal
 

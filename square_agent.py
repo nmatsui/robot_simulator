@@ -19,11 +19,12 @@ class SquareAgent(Agent):
         Parameters:
         ----------
         t: float
-            current unixtime
+            elapsed time
 
         Returns:
         ----------
-        ideal pose of t
+        np.array(x, y, theta)
+            ideal pose of t
         """
 
         d0 = 0.0
@@ -37,7 +38,7 @@ class SquareAgent(Agent):
         d8 = d7 + np.pi / 2.0 / INPUT_OMEGA
         d9 = d8 + 1.0 / INPUT_V
 
-        delta = (t - self.start_t) % d9
+        delta = t % d9
 
         if d0 <= delta < d1:
             ideal = np.array((1.0, 0 + INPUT_V * delta, np.pi / 2.0))
