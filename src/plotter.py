@@ -78,6 +78,11 @@ class Plotter:
         """
 
         ax.plot(self.ideal_list[:, 0], self.ideal_list[:, 1], color=color)
+        c = patches.Circle(xy=tuple(self.ideal_list[-1][:2]), radius=0.02, fc='none', ec=color)
+        ax.add_patch(c)
+        nose_x = [self.ideal_list[-1][0], self.ideal_list[-1][0] + 0.03 * np.cos(self.ideal_list[-1][2])]
+        nose_y = [self.ideal_list[-1][1], self.ideal_list[-1][1] + 0.03 * np.sin(self.ideal_list[-1][2])]
+        ax.plot(nose_x, nose_y, color=color, linewidth=2.0)
 
     def _plot_actual(self, ax, color):
         """

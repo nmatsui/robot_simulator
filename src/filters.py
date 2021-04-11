@@ -8,7 +8,7 @@ from src.camera import Camera
 
 class EKF:
     q = 0.01
-    r = 0.04
+    r = 0.02
 
     def __init__(self, agent, initial):
         """
@@ -93,8 +93,10 @@ class EKF:
 
         t = time.time()
         delta = t - self.t
-        ideal = self.agent.next_tick(t - self.start_t)
+        ideal = self.agent.cmd(t - self.start_t)
         input = self.agent.get_input(self.xhat, ideal, delta)
+        self.agent.move(self.xhat, input, delta)
+        # self.agent.move(ideal, input, delta)
         xhat, P = self.predict(input, delta)
         K = None
         for landmark, observed in self.agent.get_observations():

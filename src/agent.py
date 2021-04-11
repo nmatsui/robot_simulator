@@ -6,9 +6,10 @@ from src.robot import Robot
 
 
 class Agent(metaclass=abc.ABCMeta):
-    actual_sd = 0.01
-    ovserve_dist_sd = 0.05
-    ovserve_angle_sd = 0.04
+    actual_xy_sd = 0.01
+    actual_theta_sd = 0.02
+    ovserve_dist_sd = 0.02
+    ovserve_angle_sd = 0.02
 
     def __init__(self, landmarks):
         """
@@ -42,29 +43,6 @@ class Agent(metaclass=abc.ABCMeta):
 
         raise NotImplementedError
 
-    def next_tick(self, t):
-        """
-        Parameters:
-        ----------
-        t: float
-            elapsed time
-
-        Returns:
-        ----------
-        np.array(x, y, theta)
-            ideal pose of t
-
-        Notes:
-        ----------
-        when called 'next_tick', the ideal and actual pose is calculated
-        """
-        ideal = self.cmd(t)
-
-        actual = np.random.normal(ideal, Agent.actual_sd, 3)
-        self.actual_list = np.append(self.actual_list, np.array([actual]), axis=0)
-
-        return ideal
-
     def get_input(self, current, destination, delta):
         """
         Parameters:
@@ -86,6 +64,28 @@ class Agent(metaclass=abc.ABCMeta):
         omega = (destination[2] - theta) / delta
 
         return np.linalg.pinv(Robot.T(theta, omega, delta)).dot((destination - current))
+
+    def move(self, current, input, delta):
+        """
+        Parameters:
+        ----------
+        current: np.array(x, y, theta)
+            current pose
+        input: np.array(v, omega)
+            input vector of linear velocity and angular velocity
+        delta: float
+            time delta of this tick
+
+        Notes:
+        ----------
+        calculate actual pose with random noise
+        """
+
+        moved = Robot.move(current, input, delta)
+        actual = np.array([np.random.normal(moved[0], Agent.actual_xy_sd),
+                           np.random.normal(moved[1], Agent.actual_xy_sd),
+                           np.random.normal(moved[2], Agent.actual_theta_sd)])
+        self.actual_list = np.append(self.actual_list, np.array([actual]), axis=0)
 
     def get_observations(self):
         """
