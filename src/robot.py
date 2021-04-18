@@ -1,5 +1,7 @@
 import numpy as np
 
+from src import utils
+
 
 class Robot:
 
@@ -47,7 +49,7 @@ class Robot:
         omega = input[1]
 
         next = current + Robot.T(theta, omega, delta).dot(input.T)
-        # np.mod(next[2], 2.0 * np.pi)
+        next = utils.normalize_angle(next)
         return next
 
     @classmethod

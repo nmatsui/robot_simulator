@@ -24,7 +24,7 @@ class Agent(metaclass=abc.ABCMeta):
         self.landmarks = landmarks
 
     @abc.abstractmethod
-    def cmd(self, t):
+    def get_ideal(self, t):
         """
         Parameters:
         ----------

@@ -6,6 +6,7 @@ from src.environment import LANDMARKS
 from src.agent import Agent
 from src.filters import EKF
 from src.plotter import Plotter
+from src import utils
 
 INPUT_OMEGA = 0.2
 INITIAL_POSE = (1.0, 0.0, np.pi / 2.0)
@@ -13,7 +14,7 @@ INITIAL_POSE = (1.0, 0.0, np.pi / 2.0)
 
 class CircularAgent(Agent):
 
-    def cmd(self, t):
+    def get_ideal(self, t):
         """
         Parameters:
         ----------
@@ -29,7 +30,7 @@ class CircularAgent(Agent):
         ideal = np.array((0, 0, np.pi/2.0)) + np.array((np.cos(INPUT_OMEGA * t),
                                                         np.sin(INPUT_OMEGA * t),
                                                         INPUT_OMEGA * t))
-        # ideal[2] = np.mod(ideal[2], 2.0 * np.pi)
+        ideal[2] = utils.normalize_angle(ideal[2])
         return ideal
 
 

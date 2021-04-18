@@ -6,6 +6,7 @@ from src.environment import LANDMARKS
 from src.agent import Agent
 from src.filters import EKF
 from src.plotter import Plotter
+from src import utils
 
 INPUT_V = 0.2
 INPUT_OMEGA = 0.2
@@ -14,7 +15,7 @@ INITIAL_POSE = (1.0, 0.0, np.pi / 2.0)
 
 class SquareAgent(Agent):
 
-    def cmd(self, t):
+    def get_ideal(self, t):
         """
         Parameters:
         ----------
@@ -60,6 +61,7 @@ class SquareAgent(Agent):
             ideal = np.array((1.0, -1.0 + INPUT_V * (delta - d8), np.pi / 2.0))
         else:
             raise NotImplementedError
+        ideal[2] = utils.normalize_angle(ideal[2])
         return ideal
 
 

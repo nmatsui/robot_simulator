@@ -93,7 +93,7 @@ class EKF:
 
         t = time.time()
         delta = t - self.t
-        ideal = self.agent.cmd(t - self.start_t)
+        ideal = self.agent.get_ideal(t - self.start_t)
         input = self.agent.get_input(self.xhat, ideal, delta)
         self.agent.move(self.xhat, input, delta)
         # self.agent.move(ideal, input, delta)
