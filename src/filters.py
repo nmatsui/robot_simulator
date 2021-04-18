@@ -4,6 +4,7 @@ import numpy as np
 
 from src.robot import Robot
 from src.camera import Camera
+from src.planner import DWAwoObstacle
 
 
 class EKF:
@@ -29,6 +30,7 @@ class EKF:
         self.P = np.zeros((3, 3))
         self.Q = np.dot(EKF.q, np.identity(3))
         self.R = np.dot(EKF.r, np.identity(2))
+        self.input = np.array((0, 0))
         self.start_t = time.time()
         self.t = self.start_t
 
@@ -94,9 +96,8 @@ class EKF:
         t = time.time()
         delta = t - self.t
         ideal = self.agent.get_ideal(t - self.start_t)
-        input = self.agent.get_input(self.xhat, ideal, delta)
+        input = DWAwoObstacle.get_input(self.xhat, ideal, self.input, delta)
         self.agent.move(self.xhat, input, delta)
-        # self.agent.move(ideal, input, delta)
         xhat, P = self.predict(input, delta)
         K = None
         for landmark, observed in self.agent.get_observations():
@@ -105,4 +106,5 @@ class EKF:
         self.xhat = xhat
         self.P = P
         self.t = t
+        self.input = input
         return ideal, xhat, P, K

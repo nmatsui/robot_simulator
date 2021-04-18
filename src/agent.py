@@ -43,28 +43,6 @@ class Agent(metaclass=abc.ABCMeta):
 
         raise NotImplementedError
 
-    def get_input(self, current, destination, delta):
-        """
-        Parameters:
-        ----------
-        current: np.array(x, y, theta)
-            current pose
-        destination: np.array(x, y, theta)
-            destination pose
-        delta: float
-            time delta of this tick
-
-        Returns:
-        ----------
-        np.array(v, omega)
-            input vector of linear velocity and angular velocity
-        """
-
-        theta = current[2]
-        omega = (destination[2] - theta) / delta
-
-        return np.linalg.pinv(Robot.T(theta, omega, delta)).dot((destination - current))
-
     def move(self, current, input, delta):
         """
         Parameters:

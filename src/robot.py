@@ -5,6 +5,14 @@ from src import utils
 
 class Robot:
 
+    MAX_LIN_ACC = 1.0
+    MAX_ANG_ACC = 1.0
+
+    MAX_V = 0.5
+    MIN_V = 0.0
+    MAX_OMEGA = 0.5
+    MIN_OMEGA = -0.5
+
     @classmethod
     def T(cls, theta, omega, delta):
         """
