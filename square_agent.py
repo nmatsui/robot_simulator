@@ -9,7 +9,7 @@ from src.plotter import Plotter
 from src import utils
 
 INPUT_V = 0.2
-INPUT_OMEGA = 0.2
+INPUT_OMEGA = 1.0
 INITIAL_POSE = (1.0, 0.0, np.pi / 2.0)
 
 
