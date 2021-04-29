@@ -34,4 +34,7 @@ def normalize_min_max(x, axis=None):
 
     min = x.min(axis=axis, keepdims=True)
     max = x.max(axis=axis, keepdims=True)
-    return (x-min)/(max-min)
+    if max - min == 0:
+        return np.full_like(x, 1.0)
+    else:
+        return (x - min) / (max - min)
