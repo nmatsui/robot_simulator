@@ -1,26 +1,72 @@
+#!/usr/bin/env python
+
+import json
+import threading
+
 import numpy as np
+
+import zmq
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.animation import FuncAnimation
 
+HOST = 'localhost'
+PORT = 5556
+
 
 class Plotter:
 
-    def __init__(self, agent, ekf):
+    def __init__(self):
         """
-        Parameters:
+        Notes:
         ----------
-        agent: extended class of src.agent.Agent
-            an instance of the agent which implements 'cmd'
-        ekf: src.filter.EKF
-            an instance of EKF
+        prepare ideal_list, actual_list, xhat_list, observed_list to plot them
         """
 
-        self.agent = agent
-        self.ekf = ekf
         self.ideal_list = np.array([()]).reshape(0, 3)
+        self.actual_list = np.array([()]).reshape(0, 3)
         self.xhat_list = np.array([()]).reshape(0, 3)
+        self.observed_list = []
+
+    def start(self):
+        """
+        Notes:
+        ----------
+        start subscribering data by using ZMQ and plot them
+        """
+
+        subscriber = threading.Thread(target=self.subscribe)
+        subscriber.start()
+        self.plot()
+
+    def subscribe(self):
+        """
+        Notes:
+        ----------
+        subscribe data by using zmq
+        """
+
+        context = zmq.Context()
+        subscriber = context.socket(zmq.SUB)
+        subscriber.connect(f'tcp://{HOST}:{PORT}')
+        subscriber.setsockopt(zmq.SUBSCRIBE, ''.encode('utf-8'))
+
+        while True:
+            data = subscriber.recv()
+            msg = json.loads(data.decode('utf-8'))
+            self.ideal_list = np.append(self.ideal_list,
+                                        np.array([[msg['ideal']['x'], msg['ideal']['y'], msg['ideal']['theta']]]),
+                                        axis=0)
+            self.actual_list = np.append(self.actual_list,
+                                         np.array([[msg['actual']['x'], msg['actual']['y'], msg['actual']['theta']]]),
+                                         axis=0)
+            self.xhat_list = np.append(self.xhat_list,
+                                       np.array([[msg['xhat']['x'], msg['xhat']['y'], msg['xhat']['theta']]]),
+                                       axis=0)
+            self.observed_list = [(o['landmark']['x'], o['landmark']['y'], o['distance'], o['angle']) for o in msg['observed']]
+            print(f'covariance : {msg["covariance"]}')
+            print(f'kalman gain: {msg["kalmanGain"]}')
 
     def plot(self):
         """
@@ -38,24 +84,20 @@ class Plotter:
         ax = fig.add_subplot(111)
 
         def update(frame):
-            ideal, xhat, P, K = self.ekf.step()
-            self.ideal_list = np.append(self.ideal_list, np.array([ideal]), axis=0)
-            self.xhat_list = np.append(self.xhat_list, np.array([xhat]), axis=0)
-
             ax.cla()
             ax.set_xlim([-1.2, 1.2])
             ax.set_ylim([-1.2, 1.2])
 
-            for observed in self.agent.observed_list:
+            for observed in self.observed_list:
                 self._plot_observed(ax, observed, 'green', 'gray')
-            self._plot_ideal(ax, 'black')
-            self._plot_actual(ax, 'blue')
-            self._plot_estimated(ax, 'red')
+            if len(self.ideal_list) > 0:
+                self._plot_ideal(ax, 'black')
+            if len(self.actual_list):
+                self._plot_actual(ax, 'blue')
+            if len(self.xhat_list):
+                self._plot_estimated(ax, 'red')
 
-            print(f'P={P}')
-            print(f'K={K}')
-
-        anim = FuncAnimation(fig, update, interval=100)
+        anim = FuncAnimation(fig, update, interval=500)
 
         def on_click(event):
             anim.event_source.stop()
@@ -98,7 +140,7 @@ class Plotter:
         plot the actual trajectory
         """
 
-        ax.plot(self.agent.actual_list[:, 0], self.agent.actual_list[:, 1], color=color)
+        ax.plot(self.actual_list[:, 0], self.actual_list[:, 1], color=color)
 
     def _plot_estimated(self, ax, color):
         """
@@ -127,8 +169,8 @@ class Plotter:
         ----------
         ax: Axes
             the axes to plot
-        observed: tuple(tuple(x, y), np.array(distance, angle))
-            list of observed landmark (tuple of (landmark pos, observed distance and angle))
+        observed: tuple(landmark x, landmark y, distance, angle)
+            tuple of observed landmark
         color: str
             the color of observed sight line
         mark_color: str
@@ -139,8 +181,12 @@ class Plotter:
         plot the landmark and observed sight line
         """
 
-        actual = self.agent.actual_list[-1]
-        ax.plot(observed[0][0], observed[0][1], 's', color=mark_color)
-        xs = [actual[0], actual[0] + observed[1][0] * np.cos(observed[1][1] + actual[2])]
-        ys = [actual[1], actual[1] + observed[1][0] * np.sin(observed[1][1] + actual[2])]
+        actual = self.actual_list[-1]
+        ax.plot(observed[0], observed[1], 's', color=mark_color)
+        xs = [actual[0], actual[0] + observed[2] * np.cos(observed[3] + actual[2])]
+        ys = [actual[1], actual[1] + observed[2] * np.sin(observed[3] + actual[2])]
         ax.plot(xs, ys, color=color)
+
+
+if __name__ == '__main__':
+    Plotter().start()

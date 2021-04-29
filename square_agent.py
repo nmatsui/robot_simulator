@@ -5,8 +5,7 @@ import numpy as np
 from src.environment import LANDMARKS
 from src.agent import Agent
 from src.filters import EKF
-from src.plotter import Plotter
-from src import utils
+from src import utils, timer
 
 INPUT_V = 0.2
 INPUT_OMEGA = 1.0
@@ -68,4 +67,4 @@ class SquareAgent(Agent):
 if __name__ == '__main__':
     agent = SquareAgent(LANDMARKS)
     ekf = EKF(agent, INITIAL_POSE)
-    Plotter(agent, ekf).plot()
+    timer.start(ekf)

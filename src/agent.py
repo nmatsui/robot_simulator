@@ -19,7 +19,7 @@ class Agent(metaclass=abc.ABCMeta):
             list of the landmark coordination
         """
 
-        self.actual_list = np.array([()]).reshape(0, 3)
+        self.actual = None
         self.observed_list = []
         self.landmarks = landmarks
 
@@ -60,10 +60,9 @@ class Agent(metaclass=abc.ABCMeta):
         """
 
         moved = Robot.move(current, input, delta)
-        actual = np.array([np.random.normal(moved[0], Agent.actual_xy_sd),
-                           np.random.normal(moved[1], Agent.actual_xy_sd),
-                           np.random.normal(moved[2], Agent.actual_theta_sd)])
-        self.actual_list = np.append(self.actual_list, np.array([actual]), axis=0)
+        self.actual = np.array([np.random.normal(moved[0], Agent.actual_xy_sd),
+                                np.random.normal(moved[1], Agent.actual_xy_sd),
+                                np.random.normal(moved[2], Agent.actual_theta_sd)])
 
     def get_observations(self):
         """
@@ -73,7 +72,7 @@ class Agent(metaclass=abc.ABCMeta):
             list of observed landmark (tuple of (landmark pos, observed distance and angle))
         """
 
-        self.observed_list = [(landmark, self._observe(landmark, self.actual_list[-1])) for landmark in self.landmarks]
+        self.observed_list = [(landmark, self._observe(landmark, self.actual)) for landmark in self.landmarks]
         return self.observed_list
 
     def _observe(self, landmark, actual):

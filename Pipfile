@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 numpy = "~=1.20.0"
 matplotlib = "~=3.3.0"
+pyzmq = "~=22.0"
 
 [dev-packages]
 flake8 = "*"
