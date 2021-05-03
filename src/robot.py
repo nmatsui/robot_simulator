@@ -85,4 +85,4 @@ class Robot:
 
         return np.array([[1.0, 0.0, -1.0 * np.sin(theta + omega * delta / 2.0) * delta * v],
                          [0.0, 1.0,  1.0 * np.cos(theta + omega * delta / 2.0) * delta * v],
-                         [0.0, 1.0,  1.0]])
+                         [0.0, 0.0,  1.0]])
