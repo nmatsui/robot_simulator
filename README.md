@@ -60,12 +60,12 @@ This robot chases a target which moves on a square.
     pipenv install
 
     ```
-1. start plotter (on terminal 1)
+1. start plotter on terminal 1
 
     ```
     pipenv run plotter
     ```
-1. start agent (circular or square)
+1. start agent on terminal 2 (circular or square)
 
     ```
     pipenv run circular_agnet
