@@ -11,5 +11,10 @@ pyzmq = "~=22.0"
 [dev-packages]
 flake8 = "*"
 
+[scripts]
+plotter = "python plotter.py"
+circular_agent = "python circular_agent.py"
+square_agent = "python square_agent.py"
+
 [requires]
 python_version = "3.9"
