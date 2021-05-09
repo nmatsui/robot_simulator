@@ -1,0 +1,128 @@
+\begin{align*}
+\hat{x}_{k|k-1} = f(\hat{x}_{k-1|k-1},u_{k}) + w_{k}
+\end{align*}
+
+\begin{align*}
+x_{k} &= x_{k-1}+\varDelta{L}\cos(\theta_{k-1}+\frac{1}{2}\varDelta{\theta})\\
+y_{k} &= y_{k-1}+\varDelta{L}\sin(\theta_{k-1}+\frac{1}{2}\varDelta{\theta})\\
+\theta_{k} &= \theta_{k-1}+\varDelta{\theta}
+\end{align*}
+
+\begin{align*}
+\varDelta{L} &= \it{v}\varDelta{t}\\
+\varDelta{\theta} &= \it{\omega}\varDelta{t}
+\end{align*}
+
+\begin{align*}
+\it_{f}
+=
+\left(
+  \begin{array}{c}x_{k-1}\\y_{k-1}\\\theta_{k-1}\end{array}
+\right)
++
+\left(
+  \begin{array}{cc}\cos(\theta_{k-1}+\frac{1}{2}\omega\varDelta{t})\varDelta{t}&0\\\sin(\theta_{k-1}+\frac{1}{2}\omega\varDelta{t})\varDelta{t}&0\\0&\varDelta{t}\end{array}
+\right)
+\left(
+  \begin{array}{c}\it{v}\\\it{\omega}\end{array}
+\right)
+\end{align*}
+
+\begin{align*}
+z_{k} = h(\hat{x}_{k|k-1}) + v_{k}
+\end{align*}
+
+\begin{align*}
+d_{m} &= \sqrt{(x_{m}-x_{k})^2 + (y_{m}-y_{k})^2}\\
+\phi_{m} &= tan^{-1}\left(\frac{y_{m}-y_{k}}{x_{m}-x_{k}}\right) - \theta_{k}
+\end{align*}
+
+\begin{align*}
+F_{k-1}
+=
+\left.\frac{\partial f(\hat{x},u)}{\partial \hat{x}}\right|_{x=\hat{x}_{k-1|k-1},u=u_{k}}
+=
+\left(
+  \begin{array}{ccc}
+    \frac{\partial x_{k}}{\partial x_{k-1}}&\frac{\partial x_{k}}{\partial y_{k-1}}&\frac{\partial x_{k}}{\partial \theta_{k-1}}\\
+    \frac{\partial y_{k}}{\partial x_{k-1}}&\frac{\partial y_{k}}{\partial y_{k-1}}&\frac{\partial y_{k}}{\partial \theta_{k-1}}\\
+    \frac{\partial \theta_{k}}{\partial x_{k-1}}&\frac{\partial \theta_{k}}{\partial y_{k-1}}&\frac{\partial \theta_{k}}{\partial \theta_{k-1}}
+  \end{array}
+\right)
+=
+\left(
+  \begin{array}{ccc}
+    1&0&-\it{v}\varDelta{t}\sin(\theta_{k-1}+\frac{1}{2}\omega\varDelta{t})\\
+    0&1&\it{v}\varDelta{t}\cos(\theta_{k-1}+\frac{1}{2}\omega\varDelta{t})\\
+    0&0&1
+  \end{array}
+\right)
+\end{align*}
+
+\begin{align*}
+\hat{x}_{k|k-1}
+=
+\left(
+  \begin{array}{c}x_{k-1}\\y_{k-1}\\\theta_{k-1}\end{array}
+\right)
++
+\left(
+  \begin{array}{cc}\cos(\theta_{k-1}+\frac{1}{2}\omega\varDelta{t})\varDelta{t}&0\\\sin(\theta_{k-1}+\frac{1}{2}\omega\varDelta{t})\varDelta{t}&0\\0&\varDelta{t}\end{array}
+\right)
+\left(
+  \begin{array}{c}\it{v}\\\it{\omega}\end{array}
+\right)
+\end{align*}
+
+\begin{align*}
+P_{k|k-1} = F_{k-1}P_{k-1|k-1}F_{k-1}^{T} + Q
+\end{align*}
+
+\begin{align*}
+H_{k}
+=
+\left.\frac{\partial h(\hat{x})}{\partial \hat{x}}\right|_{x=\hat{x}_{k|k-1}}
+=
+\left(
+  \begin{array}{ccc}
+    \frac{\partial d_{m}}{\partial x_{k}}&\frac{\partial d_{m}}{\partial y_{k-1}}&\frac{\partial d_{m}}{\partial \theta_{k-1}}\\
+    \frac{\partial \phi_{m}}{\partial x_{k-1}}&\frac{\partial \phi_{m}}{\partial y_{k-1}}&\frac{\partial \phi_{m}}{\partial \theta_{k-1}}\\
+  \end{array}
+\right)
+=
+\left(
+  \begin{array}{ccc}
+    -\frac{x_{m}-x_{k}}{\sqrt{(x_{m}-x_{k})^2+(y_{m}-y_{k})^2}}&-\frac{y_{m}-y_{k}}{\sqrt{(x_{m}-x_{k})^2+(y_{m}-y_{k})^2}}&0\\
+    \frac{y_{m}-y{k}}{(x_{m}-x_{k})^2+(y_{m}-y_{k})^2}&-\frac{x_{m}-x_{k}}{(x_{m}-x_{k})^2+(y_{m}-y_{k})^2}&-1
+  \end{array}
+\right)
+\end{align*}
+
+\begin{align*}
+\hat{y}_{k}
+=
+\left(
+  \begin{array}{c}d_{m}\\\phi_{m}\end{array}
+\right)
+-
+\left(
+  \begin{array}{c}\sqrt{(x_{m}-x_{k})^2 + (y_{m}-y_{k})^2}\\tan^{-1}\left(\frac{y_{m}-y_{k}}{x_{m}-x_{k}}\right) - \theta_{k}\end{array}
+\right)
+\end{align*}
+
+\begin{align*}
+S_{k} = H_{k}P_{k|k-1}H_{k}^{T} + R
+\end{align*}
+
+\begin{align*}
+K_{k} = P_{k|k-1}H_{k}^{T}S_{k}^{-1}
+\end{align*}
+
+\begin{align*}
+\hat{x}_{k|k} = \hat{x}_{k|k-1} + K_{k}\hat{y}_{k}
+\end{align*}
+
+\begin{align*}
+P_{k|k} = (I-K_{k}H_{k})P_{k|k-1}
+\end{align*}
+
