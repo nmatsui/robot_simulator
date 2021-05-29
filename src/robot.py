@@ -57,7 +57,7 @@ class Robot:
         omega = input[1]
 
         next = current + Robot.T(theta, omega, delta).dot(input.T)
-        next = utils.normalize_angle(next)
+        next[2] = utils.normalize_angle(next[2])
         return next
 
     @classmethod
