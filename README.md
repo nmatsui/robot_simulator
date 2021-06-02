@@ -36,6 +36,18 @@ This robot chases a target which moves on a square.
 
 ![square\_simulation.png](docs/images/square_simulation.gif)
 
+### waypoints trace
+This robot traces a given waypoints.
+
+* target: black object and black line
+* actual trajectory: blue line
+* observed mark: green lines
+* estimated pose: red object
+* estimated trajectory: red line
+
+![waypoints\_simulation.png](docs/images/waypoints_simulation.gif)
+
+
 ## how to use (on macOS Catalina)
 1. install tcl-tk
 
