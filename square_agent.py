@@ -14,10 +14,12 @@ INITIAL_POSE = (1.0, 0.0, np.pi / 2.0)
 
 class SquareAgent(Agent):
 
-    def get_ideal(self, t):
+    def get_ideal(self, current, t):
         """
         Parameters:
         ----------
+        current: np.array(x, y, theta)
+            current pose (is not used in this agent)
         t: float
             elapsed time
 

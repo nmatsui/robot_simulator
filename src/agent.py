@@ -24,10 +24,12 @@ class Agent(metaclass=abc.ABCMeta):
         self.landmarks = landmarks
 
     @abc.abstractmethod
-    def get_ideal(self, t):
+    def get_ideal(self, current, t):
         """
         Parameters:
         ----------
+        current: np.array(x, y, theta)
+            current pose
         t: float
             elapsed time
 
@@ -42,6 +44,48 @@ class Agent(metaclass=abc.ABCMeta):
         """
 
         raise NotImplementedError
+
+    def get_max_accelarations(self, current):
+        """
+        Parameters:
+        ----------
+        current: np.array(x, y, theta)
+            current pose (is not used in this default implement)
+
+        Returns:
+        ----------
+        Tuple (float, float)
+            tuple of the max linear accelaration and the max angular accelaration
+        """
+        return (Robot.MAX_LIN_ACC, Robot.MAX_ANG_ACC)
+
+    def get_linear_velocities(self, current):
+        """
+        Parameters:
+        ----------
+        current: np.array(x, y, theta)
+            current pose (is not used in this default implement)
+
+        Returns:
+        ----------
+        Tuple (float, float)
+            tuple of the max linear velocity and the min linear velocity
+        """
+        return (Robot.MAX_V, Robot.MIN_V)
+
+    def get_angular_velocities(self, current):
+        """
+        Parameters:
+        ----------
+        current: np.array(x, y, theta)
+            current pose (is not used in this default implement)
+
+        Returns:
+        ----------
+        Tuple (float, float)
+            tuple of the max angular velocity and the min angular velocity
+        """
+        return (Robot.MAX_OMEGA, Robot.MIN_OMEGA)
 
     def move(self, current, input, delta):
         """

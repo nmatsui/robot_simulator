@@ -17,10 +17,12 @@ class DWAwoObstacle:
     THETA_GAIN = 0.1
 
     @classmethod
-    def get_input(cls, current, destination, current_input, delta):
+    def get_input(cls, agent, current, destination, current_input, delta):
         """
         Parameters:
         ----------
+        agent: src.agent.Agent
+            agent of robot
         current: np.array(x, y, theta)
             current pose
         destination: np.array(x, y, theta)
@@ -36,7 +38,11 @@ class DWAwoObstacle:
             next input vector of linear velocity and angular velocity
         """
 
-        v_range, omega_range = cls._get_window(current_input, delta)
+        max_accelarations = agent.get_max_accelarations(current)
+        linear_velocities = agent.get_linear_velocities(current)
+        angular_velocities = agent.get_angular_velocities(current)
+
+        v_range, omega_range = cls._get_window(max_accelarations, linear_velocities, angular_velocities, current_input, delta)
 
         input_list = np.array([[]]).reshape(0, 2)
         heading_list = np.array([])
@@ -67,10 +73,16 @@ class DWAwoObstacle:
         return input_list[np.argmin(candidate_list)]
 
     @classmethod
-    def _get_window(cls, current_input, delta):
+    def _get_window(cls, max_accelarations, linear_velocities, angular_velocities, current_input, delta):
         """
         Parameters:
         ----------
+        max_accelarations: Tuple (float, float)
+            tuple of the max linear accelaration and the max angular accelaration
+        linear_velocities: Tuple (float, float)
+            tuple of the max linear velocity and the min linear velocity
+        angular_velocities: Tuple (float, float)
+            tuple of the max angular velocity and the min angular velocity
         current_input: np.array(v, omega)
             current input vector
         delta: float
@@ -84,16 +96,16 @@ class DWAwoObstacle:
             caution) this candidate velocities do not consider any obstacles
         """
 
-        delta_v = Robot.MAX_LIN_ACC * delta
-        delta_omega = Robot.MAX_ANG_ACC * delta
+        delta_v = max_accelarations[0] * delta
+        delta_omega = max_accelarations[1] * delta
 
-        min_v = np.max((current_input[0] - delta_v, Robot.MIN_V))
-        max_v = np.min((current_input[0] + delta_v, Robot.MAX_V))
-        min_omega = np.max((current_input[1] - delta_omega, Robot.MIN_OMEGA))
-        max_omega = np.min((current_input[1] + delta_omega, Robot.MAX_OMEGA))
+        min_v = np.max((current_input[0] - delta_v, linear_velocities[1]))
+        max_v = np.min((current_input[0] + delta_v, linear_velocities[0]))
+        min_omega = np.max((current_input[1] - delta_omega, angular_velocities[1]))
+        max_omega = np.min((current_input[1] + delta_omega, angular_velocities[0]))
 
-        return np.arange(min_v, max_v, DWAwoObstacle.V_RESOLUTION), \
-            np.arange(min_omega, max_omega, DWAwoObstacle.OMEGA_RESOLUTION)
+        return np.append(np.arange(min_v, max_v, DWAwoObstacle.V_RESOLUTION), max_v), \
+            np.append(np.arange(min_omega, max_omega, DWAwoObstacle.OMEGA_RESOLUTION), max_omega)
 
     @classmethod
     def _eval_heading(cls, next, destination):

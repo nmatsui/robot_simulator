@@ -95,8 +95,8 @@ class EKF:
 
         t = time.time()
         delta = t - self.t
-        ideal = self.agent.get_ideal(t - self.start_t)
-        input = DWAwoObstacle.get_input(self.xhat, ideal, self.input, delta)
+        ideal = self.agent.get_ideal(self.xhat, t - self.start_t)
+        input = DWAwoObstacle.get_input(self.agent, self.xhat, ideal, self.input, delta)
         self.agent.move(self.xhat, input, delta)
         xhat, P = self.predict(input, delta)
         K = None
