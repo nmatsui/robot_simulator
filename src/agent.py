@@ -6,8 +6,8 @@ from src.robot import Robot
 
 
 class Agent(metaclass=abc.ABCMeta):
-    actual_xy_sd = 0.01
-    actual_theta_sd = 0.02
+    actual_xy_sd = 0.005
+    actual_theta_sd = 0.01
     ovserve_dist_sd = 0.02
     ovserve_angle_sd = 0.02
 

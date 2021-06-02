@@ -8,13 +8,19 @@ from src import utils
 
 class DWAwoObstacle:
 
-    V_RESOLUTION = 0.05
-    OMEGA_RESOLUTION = 0.05
+    V_RESOLUTION = 0.01
+    OMEGA_RESOLUTION = 0.01
 
-    ERROR_ANGLE_GAIN = 1.0
-    VELOCITY_GAIN = 0.5
-    DISTANCE_GAIN = 0.01
-    THETA_GAIN = 0.1
+    FAR_ERROR_ANGLE_GAIN = 1.0
+    FAR_VELOCITY_GAIN = 0.01
+    FAR_DISTANCE_GAIN = 0.8
+    FAR_THETA_GAIN = 0.1
+    NEAR_ERROR_ANGLE_GAIN = 0.01
+    NEAR_VELOCITY_GAIN = 0.01
+    NEAR_DISTANCE_GAIN = 0.8
+    NEAR_THETA_GAIN = 1.0
+
+    DISTANCE_THRESHOLD = 0.1
 
     @classmethod
     def get_input(cls, agent, current, destination, current_input, delta):
@@ -60,8 +66,18 @@ class DWAwoObstacle:
             theta_list = np.append(theta_list, cls._eval_theta(next, destination))
 
         def _eval(a):
-            return DWAwoObstacle.ERROR_ANGLE_GAIN * a[0] + DWAwoObstacle.VELOCITY_GAIN * a[1] \
-                + DWAwoObstacle.DISTANCE_GAIN * a[2] + DWAwoObstacle.THETA_GAIN * a[3]
+            if np.linalg.norm(current[:2] - destination[:2]) < DWAwoObstacle.DISTANCE_THRESHOLD:
+                error_angle_gain = DWAwoObstacle.NEAR_ERROR_ANGLE_GAIN
+                velocity_gain = DWAwoObstacle.NEAR_VELOCITY_GAIN
+                distance_gain = DWAwoObstacle.NEAR_DISTANCE_GAIN
+                theta_gain = DWAwoObstacle.NEAR_THETA_GAIN
+            else:
+                error_angle_gain = DWAwoObstacle.FAR_ERROR_ANGLE_GAIN
+                velocity_gain = DWAwoObstacle.FAR_VELOCITY_GAIN
+                distance_gain = DWAwoObstacle.FAR_DISTANCE_GAIN
+                theta_gain = DWAwoObstacle.FAR_THETA_GAIN
+
+            return error_angle_gain * a[0] + velocity_gain * a[1] + distance_gain * a[2] + theta_gain * a[3]
 
         candidate_list = np.apply_along_axis(_eval, 0, np.array([
             utils.normalize_min_max(heading_list),

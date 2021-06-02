@@ -7,8 +7,8 @@ from src.agent import Agent
 from src.filters import EKF
 from src import utils, timer
 
-INPUT_V = 0.2
-INPUT_OMEGA = 1.0
+INPUT_V = 0.3
+INPUT_OMEGA = 0.5
 INITIAL_POSE = (1.0, 0.0, np.pi / 2.0)
 
 
