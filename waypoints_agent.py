@@ -51,7 +51,7 @@ class WaypointsAgent(Agent):
         """
 
         if np.linalg.norm(self.target[:2] - current[:2]) < DISTANCE_THRESHOLD and \
-            np.abs(utils.normalize_angle(self.target[2] - current[2])) < ANGLE_THRESHOLD:
+           np.abs(utils.normalize_angle(self.target[2] - current[2])) < ANGLE_THRESHOLD:
 
             self.target = next(self.itr)
 
